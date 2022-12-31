@@ -1,0 +1,134 @@
+/*
+3. 编制学生课程信息管理程序
+一个班的学生(不超过 50 人)，每个学生的数据包括学号、姓名、五门课(英语、高数、马哲、计算机、电子技术)的成绩，要求从键盘输入此数据，按总分从高到低的顺序保存到 cj.dat中(格式见附表 1)，并按学号从小到大的顺序打印出每门课程的成绩表(格式见附表2)以及总分最高分的学生的数据(包括学号、姓名、各门课的成绩、平均分数)。
+要求:用 input 函数输入学生数据;用 PrintScore(x)函数打印出课程x的成绩表;用 max 函数找出最高分学生数据;最高分的学生的数据在主函数中输出。
+*/
+
+#include <stdio.h>
+#include <string.h>
+#include <malloc.h>
+#pragma warning(disable:4996) //非vs可不写
+void bubbleSort(struct student, int);
+void PrintScore(struct student[], int, char*);
+struct student {
+	char name[10];
+	int stuNum;
+	int engScore; //英语
+	int mathScore; //数学
+	int phiScore; //哲学
+	int cpScore; //计算机
+	int elecScore; //电子技术
+};
+void main()
+{
+	int count = 0;  //统计学生人数
+	printf("告诉我学生人数：3\n");
+	//scanf_s("%d",&count);
+	printf("按名字，学号，英语，数学，哲学，计算机，电子技术 顺序输入数据。\n");
+	//printf("请输入第%d个学生数据：", );
+	count = 3;
+	struct student temp1 = { "mingzi1",1,11,11,11,11,11 };
+	//temp1.name = "mingzi111";报错，name此时是常量，不可赋值修改，但可以通过strcpy()改变指针
+	temp1.mathScore = 100;
+
+
+	struct student temp2 = { "mingzi2",2,22,22,22,22,22 };
+	struct student temp3 = { "mingzi3",3,33,33,33,33,33 };
+	struct student students[3] = { temp3,temp1,temp2 };//这里并未解决学生人数问题
+
+
+	printf("%d\n",temp1.mathScore);
+	for (int i = 0; i < count; i++) {
+		printf("%d\t%s，英语：%d\t数学：%d\t哲学：%d\t计算机：%d\t电子：%d\t \n", students[i].stuNum, students[i].name, students[i].engScore, students[i].mathScore, students[i].phiScore, students[i].cpScore, students[i].elecScore);
+	}
+
+	printf("----------------------------------------------------------------------------------------\n");
+
+	printf("分数表，选一个门课程，英语，数学，哲学，计算机，电子技术，输入其它将不会显示。\n");
+	char course[] = "数学";
+	PrintScore(students, 3, course); //按学号排序先，并且输出相应课程分数
+
+
+	printf("----------------------------------------------------------------------------------------\n");
+	for (int i = 0; i < count; i++) {
+		printf("%d\t%s，英语：%d\t数学：%d\t哲学：%d\t计算机：%d\t电子：%d\t \n", students[i].stuNum, students[i].name, students[i].engScore, students[i].mathScore, students[i].phiScore, students[i].cpScore, students[i].elecScore);
+	}
+}
+/*
+原型，注意，原本交换两个数是无法实现的（因为变量参数会复制，而不是直接引用），但由于方法中传递的是结构体，所以才实现了数字交换
+void PrintScore(struct student arr[], int num) { //按学号从小到大排序，num是学生人数
+	struct student temp;
+	for (int i = 0; i < num-1; i++) {
+		for (int j = 0; j < num-1-i; j++) {
+			if (arr[j].stuNum > arr[j + 1].stuNum) {
+				temp.stuNum = arr[j].stuNum;
+				strcpy(temp.name, arr[j].name);
+				arr[j].stuNum = arr[j+1].stuNum;
+				strcpy(arr[j].name, arr[j+1].name);
+				arr[j+1].stuNum = temp.stuNum;
+				strcpy(arr[j+1].name, temp.name);
+			}
+		}
+	}
+}
+*/
+void bubbleSort(struct student arr[], int num) { //按学号从小到大排序，num是学生人数
+	struct student temp;
+	for (int i = 0; i < num - 1; i++) {
+		for (int j = 0; j < num - 1 - i; j++) {
+			if (arr[j].stuNum > arr[j + 1].stuNum) {
+				temp.stuNum = arr[j].stuNum;
+				temp.engScore = arr[j].engScore;
+				temp.mathScore = arr[j].mathScore;
+				temp.phiScore = arr[j].phiScore;
+				temp.cpScore = arr[j].cpScore;
+				temp.elecScore = arr[j].elecScore;
+				strcpy(temp.name, arr[j].name);
+
+				arr[j].stuNum = arr[j + 1].stuNum;
+				arr[j].engScore = arr[j + 1].engScore;
+				arr[j].mathScore = arr[j + 1].mathScore;
+				arr[j].phiScore = arr[j + 1].phiScore;
+				arr[j].cpScore = arr[j + 1].cpScore;
+				arr[j].elecScore = arr[j + 1].elecScore;
+				strcpy(arr[j].name, arr[j + 1].name);
+
+				arr[j + 1].stuNum = temp.stuNum;
+				arr[j + 1].engScore = temp.engScore;
+				arr[j + 1].mathScore = temp.mathScore;
+				arr[j + 1].phiScore = temp.phiScore;
+				arr[j + 1].cpScore = temp.cpScore;
+				arr[j + 1].elecScore = temp.elecScore;
+				strcpy(arr[j + 1].name, temp.name);
+			}
+		}
+	}
+}
+void PrintScore(struct student students[], int count, char *course) {
+	if (course == "英语") {
+		for (int i = 0; i < count; i++) {
+			printf("%d\t%s，英语：%d \n", students[i].stuNum, students[i].name, students[i].engScore); break; //英语
+		}
+	}else if (course == "数学") {
+		for (int i = 0; i < count; i++) {
+			printf("%d\t%s，数学：%d \n", students[i].stuNum, students[i].name, students[i].mathScore); break; //数学
+		}
+	}else if (course == "哲学") {
+		for (int i = 0; i < count; i++) {
+			printf("%d\t%s，哲学：%d \n", students[i].stuNum, students[i].name, students[i].phiScore); break; //哲学
+		}
+	}else if (course == "计算机") {
+		for (int i = 0; i < count; i++) {
+			printf("%d\t%s，计算机：%d \n", students[i].stuNum, students[i].name, students[i].cpScore); break; //计算机
+		}
+	}else if (course == "电子技术") {
+		for (int i = 0; i < count; i++) {
+			printf("%d\t%s，电子技术：%d \n", students[i].stuNum, students[i].name, students[i].elecScore); break; //电子技术
+		}
+	}
+	else{
+		printf("%s\n",course ); //测试此时course输入的是什么
+		//printf(strcmp("数学", "数学"));
+		printf("输入有误，程序自动结束！\n");
+	}
+}
