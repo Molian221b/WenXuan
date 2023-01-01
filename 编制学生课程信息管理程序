@@ -8,8 +8,10 @@
 #include <string.h>
 #include <malloc.h>
 #pragma warning(disable:4996) //非vs可不写
-void bubbleSort(struct student, int);
+void totlaScore(struct student[], int);
+void bubbleSort(struct student[], int);
 void PrintScore(struct student[], int, char*);
+void max(struct student[], int);
 struct student {
 	char name[10];
 	int stuNum;
@@ -18,6 +20,7 @@ struct student {
 	int phiScore; //哲学
 	int cpScore; //计算机
 	int elecScore; //电子技术
+	int sum;
 };
 void main()
 {
@@ -27,19 +30,19 @@ void main()
 	printf("按名字，学号，英语，数学，哲学，计算机，电子技术 顺序输入数据。\n");
 	//printf("请输入第%d个学生数据：", );
 	count = 3;
-	struct student temp1 = { "mingzi1",1,11,11,11,11,11 };
+	struct student temp1 = { "mingzi1",1,11,11,11,11,32,0 };
 	//temp1.name = "mingzi111";报错，name此时是常量，不可赋值修改，但可以通过strcpy()改变指针
 	temp1.mathScore = 100;
 
 
-	struct student temp2 = { "mingzi2",2,22,22,22,22,22 };
-	struct student temp3 = { "mingzi3",3,33,33,33,33,33 };
-	struct student students[3] = { temp3,temp1,temp2 };//这里并未解决学生人数问题
+	struct student temp2 = { "mingzi2",2,22,22,22,22,22,0 };
+	struct student temp3 = { "mingzi3",3,33,33,33,33,33,0 };
+	struct student students[3] = { temp3,temp1,temp2 }; //这里并未解决学生人数问题
+	totlaScore(students, 3);  //计算总分
 
-
-	printf("%d\n",temp1.mathScore);
+	printf("%d\n", temp1.mathScore);
 	for (int i = 0; i < count; i++) {
-		printf("%d\t%s，英语：%d\t数学：%d\t哲学：%d\t计算机：%d\t电子：%d\t \n", students[i].stuNum, students[i].name, students[i].engScore, students[i].mathScore, students[i].phiScore, students[i].cpScore, students[i].elecScore);
+		printf("学号：%d\t名字：%s，英语：%d\t数学：%d\t哲学：%d\t计算机：%d\t电子：%d\t \n", students[i].stuNum, students[i].name, students[i].engScore, students[i].mathScore, students[i].phiScore, students[i].cpScore, students[i].elecScore);
 	}
 
 	printf("----------------------------------------------------------------------------------------\n");
@@ -50,9 +53,12 @@ void main()
 
 
 	printf("----------------------------------------------------------------------------------------\n");
+	bubbleSort(students, 3);
 	for (int i = 0; i < count; i++) {
-		printf("%d\t%s，英语：%d\t数学：%d\t哲学：%d\t计算机：%d\t电子：%d\t \n", students[i].stuNum, students[i].name, students[i].engScore, students[i].mathScore, students[i].phiScore, students[i].cpScore, students[i].elecScore);
+		printf("学号：%d\t名字：%s，英语：%d\t数学：%d\t哲学：%d\t计算机：%d\t电子：%d\t \n", students[i].stuNum, students[i].name, students[i].engScore, students[i].mathScore, students[i].phiScore, students[i].cpScore, students[i].elecScore);
 	}
+	printf("----------------------------------------------------------------------------------------\n");
+	max(students,3);
 }
 /*
 原型，注意，原本交换两个数是无法实现的（因为变量参数会复制，而不是直接引用），但由于方法中传递的是结构体，所以才实现了数字交换
@@ -72,6 +78,12 @@ void PrintScore(struct student arr[], int num) { //按学号从小到大排序�
 	}
 }
 */
+void totlaScore(struct student arr[], int num) {
+	for (int i = 0; i < num; i++) {  // 第一个for循环算每个人的总分
+		arr[i].sum = arr[i].engScore + arr[i].mathScore + arr[i].phiScore + arr[i].cpScore + arr[i].elecScore;
+		printf("%s目前总分是：%d\n", arr[i].name, arr[i].sum);
+	}
+}
 void bubbleSort(struct student arr[], int num) { //按学号从小到大排序，num是学生人数
 	struct student temp;
 	for (int i = 0; i < num - 1; i++) {
@@ -104,31 +116,59 @@ void bubbleSort(struct student arr[], int num) { //按学号从小到大排序�
 		}
 	}
 }
-void PrintScore(struct student students[], int count, char *course) {
-	if (course == "英语") {
+void PrintScore(struct student students[], int count, char* course) {
+	if (strcmp(course,"英语")==0) {
 		for (int i = 0; i < count; i++) {
-			printf("%d\t%s，英语：%d \n", students[i].stuNum, students[i].name, students[i].engScore); break; //英语
-		}
-	}else if (course == "数学") {
-		for (int i = 0; i < count; i++) {
-			printf("%d\t%s，数学：%d \n", students[i].stuNum, students[i].name, students[i].mathScore); break; //数学
-		}
-	}else if (course == "哲学") {
-		for (int i = 0; i < count; i++) {
-			printf("%d\t%s，哲学：%d \n", students[i].stuNum, students[i].name, students[i].phiScore); break; //哲学
-		}
-	}else if (course == "计算机") {
-		for (int i = 0; i < count; i++) {
-			printf("%d\t%s，计算机：%d \n", students[i].stuNum, students[i].name, students[i].cpScore); break; //计算机
-		}
-	}else if (course == "电子技术") {
-		for (int i = 0; i < count; i++) {
-			printf("%d\t%s，电子技术：%d \n", students[i].stuNum, students[i].name, students[i].elecScore); break; //电子技术
+			printf("学号：%d\t名字：%s，英语：%d \n", students[i].stuNum, students[i].name, students[i].engScore); break; //英语
 		}
 	}
-	else{
-		printf("%s\n",course ); //测试此时course输入的是什么
-		//printf(strcmp("数学", "数学"));
+	else if (strcmp(course, "数学") == 0) {
+		for (int i = 0; i < count; i++) {
+			printf("学号：%d\t名字：%s，数学：%d \n", students[i].stuNum, students[i].name, students[i].mathScore); break; //数学
+		}
+	}
+	else if (strcmp(course, "哲学") == 0) {
+		for (int i = 0; i < count; i++) {
+			printf("学号：%d\t名字：%s，哲学：%d \n", students[i].stuNum, students[i].name, students[i].phiScore); break; //哲学
+		}
+	}
+	else if (strcmp(course, "计算机") == 0) {
+		for (int i = 0; i < count; i++) {
+			printf("学号：%d\t名字：%s，计算机：%d \n", students[i].stuNum, students[i].name, students[i].cpScore); break; //计算机
+		}
+	}
+	else if (strcmp(course, "电子技术") == 0) {
+		for (int i = 0; i < count; i++) {
+			printf("学号：%d\t名字：%s，电子技术：%d \n", students[i].stuNum, students[i].name, students[i].elecScore); break; //电子技术
+		}
+	}
+	else {
+		printf("%s\n", course); //测试此时course输入的是什么
+		printf(strcmp("数学", "数学"));
 		printf("输入有误，程序自动结束！\n");
+	}
+}
+void max(struct student arr[], int count) {
+	struct student maxNum[5];  //暂时还未解决动态输入问题
+	int maxSum = 0;
+	for (int i = 0; i < count; i++) {  // 第一个for循环算每个人的总分
+		if (arr[i].sum >= maxSum) {
+			maxSum = arr[i].sum;
+		}
+	}
+
+	int count_temp = 0;
+	for (int i = 0; i < 5; i++) {  //第二个for循环把所有总分的人装进结构数组maxNum里
+		if (arr[i].sum == maxSum) {
+			maxNum[count_temp] = arr[i];
+			count_temp += 1;
+		}
+	}
+
+	printf("以下同学是最高分：\n");
+	for (int i = 0; i < 5; i++) { //第三个for循环打印所有最高分同学
+		if (maxNum[i].sum == maxSum) {
+			printf("学号：%d\t名字：%s，总分：%d \n", maxNum[i].stuNum, maxNum[i].name, maxNum[i].sum);
+		}
 	}
 }
