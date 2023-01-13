@@ -1,0 +1,166 @@
+#include <stdio.h>
+#include <time.h>
+//#include <stdlib.h>
+#pragma warning(disable:4996)
+
+void menu() {
+	printf("***********************************************      \n");
+	printf("* 1·显示当前日期和时间          2·显示星期几*      \n");
+	printf("* 3·显示当前日期是今年第几天    4·存储信息  *      \n");
+	printf("* 5·读取信息                    6·退出程序  *      \n");
+	printf("***********************************************      \n");
+	printf("请选择（1-6）\n");
+}
+
+//time.h中的结构体定义
+//struct tm {
+//int tm_sec;         /* 秒，范围从 0 到 59                */
+//int tm_min;         /* 分，范围从 0 到 59                */
+//int tm_hour;        /* 小时，范围从 0 到 23              */
+//int tm_mday;        /* 一月中的第几天，范围从 1 到 31    */
+//int tm_mon;         /* 月份，范围从 0 到 11              */
+//int tm_year;        /* 自 1900 起的年数                  */
+//int tm_wday;        /* 一周中的第几天，范围从 0 到 6     */
+//int tm_yday;        /* 一年中的第几天，范围从 0 到 365   */
+//int tm_isdst;       /* 夏令时                            */
+//};
+
+
+void showTime() {
+	time_t cur_time; //创建一个结构体变量
+	time(&cur_time); //&cur_time取得这个变量的地址，将这个地址传递给time()后，time()会把时间放到这个地址对应的内存
+	printf("%s\n", ctime(&cur_time)); //time.h中有一个函数ctime，它可以把time_t类型的变量转换成一条具体时间字符串，参数是一个time_t变量的地址
+	//printf("%lld\n", cur_time);  //打印cur_time，会显示格林尼治时间1970年1月1日00:00:00到当前时刻的秒数
+}
+void showWeek() {
+	time_t cur_time;
+	struct tm* time_point;  //注意，这个结构体名称是tm
+	time(&cur_time);
+	time_point = gmtime(&cur_time); //用time_point指针指向gmtime()返回的tm结构体对象
+	//ctime()返回的是个值，而gmtime()返回的是个结构体变量
+	int day;
+	//W= (d+2*m+3*(m+1)/5+y+y/4-y/100+y/400)%7,基姆拉尔森计算公式，d表示日期中的日数(带月份的，比如2月12日中的12)，m表示当前月份，y表示当前年份
+	day = (time_point->tm_mday + 2 * time_point->tm_mon + 3 * (time_point->tm_mon + 1) / 5 + time_point->tm_year + time_point->tm_year / 4 - time_point->tm_year / 100 + time_point->tm_year / 400) % 7;
+	printf("今天是：周%d\t", day + 1);
+}
+void showDay() {
+	time_t cur_time;
+	struct tm* time_point;
+	time(&cur_time);
+	time_point = gmtime(&cur_time);
+	printf("今天是今年第%d天\t", time_point->tm_yday + 1);//
+	//printf("今天是今年第%d天\t", ( * time_point).tm_yday + 1); //也可以这样写，注意（）,因为.的优先级高于*
+}
+void saveData() {
+	printf("请输入信息(不要超过100个字节)并按回车确认：\n");
+	char content[100];
+	//scanf("%s",&content); //这里为什么不能使用scanf()？因为使用scanf()的话输入带有空格的内容，比如content1 content2 content3，这样相当于使用了3次scanf()语句，也就是把后面的scanf()也用掉了，把gets()换成scanf()试试就懂了
+	gets(content);
+
+	time_t cur_time;
+	struct tm* time_point;
+	time(&cur_time);
+	time_point = gmtime(&cur_time);
+	FILE* fp = fopen("C:\\Users\\Admin\\Desktop\\多功能记事本.txt", "a+");
+	int hour = time_point->tm_hour + 8 >= 24 ? time_point->tm_hour + 8 - 24 : time_point->tm_hour + 8;//时差有8小时，判断小时会不会超过24
+	fprintf(fp, "日期：%04d.%02d.%02d    时间：%02d:%02d:%02d    %s\n", time_point->tm_year + 1900, time_point->tm_mon + 1, time_point->tm_mday + 1, hour, time_point->tm_min, time_point->tm_sec, content);
+	fclose(fp);
+}
+void readData() {
+	FILE* fp = fopen("C:\\Users\\Admin\\Desktop\\多功能记事本.txt", "a+"); //这是代码指针
+	fp = fopen("C:\\Users\\Admin\\Desktop\\多功能记事本.txt", "r+");
+	rewind(fp); //将文件指针移回最前端，注意区分文件指针与代码指针
+
+	char read_content[100]; //用来放fgets()或是fscanf()读取到的数据，然后再用printf()打印出来
+	//char temp1[100];
+	//char temp2[100];
+	//char temp3[100];
+
+	fgets(read_content, 100, fp); //fgets()用来从指定的文件中读取一个字符串，并保存到字符数组中
+	//同时fgets()一定要指明最大读取长度，而且参数fp的位置和fprint()和fscanf()都不一样
+	//需要说明的是，在读取到 n-1 个字符之前如果出现了换行，或者读到了文件末尾，则读取结束。这就意味着，不管 n 的值多大，fgets() 最多只能读取一行数据，不能跨行。在C语言中，没有按行读取文件的函数，我们可以借助 fgets()，将 n 的值设置地足够大，每次就可以读取到一行数据。
+
+	//fscanf(fp, "%s",&temp1); //这样也可以读取文件里的数据，但是遇到空格就会停下，然而fgets()只有遇到回车或是达到最大读取长度才会停下
+	//fscanf(fp, "%s",&temp2);
+	//fscanf(fp, "%s",&temp3);
+	printf("%s", read_content);
+	fclose(fp);
+}
+void bye() {
+	exit(0);
+}
+char* findLine(int row) {  //找到文件中的某一行，并把数据传入cur_row，再返回cur_row
+	static char cur_row[100]; //注意如果最后没有return，也就是把函数写成void的话，在main函数里是无法调用cur_row的，static只是让变量不会随着方法结束释放，而不是让它拥有了全局变量的功能
+	FILE* fp;
+	if ((fp = fopen("C:\\Users\\Admin\\Desktop\\多功能记事本.txt", "r")) == NULL) {
+		printf("文件不存在"); //准确的说法可能是文件不存在，因为不知道是否有同名但无法读取的情况
+		exit(0); //退出程序
+	}
+	rewind(fp);
+	int count = 1;  //代表读取到了哪一行，默认为第一行
+	char temp[100];
+	/*
+	feof() 函数用来判断文件内部指针是否指向了文件末尾，它的原型是：
+		int feof(FILE * fp);
+	当指向文件末尾时返回非零值，否则返回零值。
+	*/
+	while (!feof(fp)) {
+		if (count == row) {  //如果当前读取的这一行就是目标行
+			fgets(cur_row, 100, fp);  //读取当前行的内容并放到row_content中，最多100字节
+		}
+		fgets(temp, 100, fp);  //单纯为了跳过一行，实际内容用不到
+		count++;
+	}
+	fclose(fp);
+	return cur_row;
+}
+
+
+void clearData() {
+	FILE* fp = fopen("C:\\Users\\Admin\\Desktop\\多功能记事本.txt", "w");
+	fclose(fp);
+}
+
+void main() {
+	menu();
+	//int choice;
+	//scanf("%d",&choice);
+	//switch (choice) {
+	//case 1:	break;
+	//}
+
+	/*
+	5种文件权限+2种读写方式
+	"r"	以“只读”方式打开文件。只允许读取，不允许写入。文件必须存在，否则打开失败。
+	"w"	以“写入”方式打开文件。如果文件不存在，那么创建一个新文件；如果文件存在，那么清空文件内容（相当于删除原文件，再创建一个新文件）。
+	"a"	以“追加”方式打开文件。如果文件不存在，那么创建一个新文件；如果文件存在，那么将写入的数据追加到文件的末尾（文件原有的内容保留）。
+	"r+"以“读写”方式打开文件。既可以读取也可以写入，也就是随意更新文件。文件必须存在，否则打开失败。
+	"w+"以“写入 / 更新”方式打开文件，相当于w和r + 叠加的效果。既可以读取也可以写入，也就是随意更新文件。如果文件不存在，那么创建一个新文件；如果文件存在，那么清空文件内容（相当于删除原文件，再创建一个新文件）。
+	"a+"以“追加 / 更新”方式打开文件，相当于a和r + 叠加的效果。既可以读取也可以写入，也就是随意更新文件。如果文件不存在，那么创建一个新文件；如果文件存在，那么将写入的数据追加到文件的末尾（文件原有的内容保留）。
+	
+	"t"	文本文件。如果不写，默认为"t"。
+	"b"	二进制文件。
+	*/
+
+	//char content[] = "a temp content";
+	//time_t cur_time;
+	//struct tm* time_point;
+	//time(&cur_time);
+	//time_point = gmtime(&cur_time);
+	//FILE* fp = fopen("C:\\Users\\Admin\\Desktop\\多功能记事本.txt", "a+");
+	//int hour = time_point->tm_hour + 8 >= 24 ? time_point->tm_hour + 8 - 24 : time_point->tm_hour + 8;//时差有8小时，判断小时会不会超过24
+	////fprintf(fp, "日期：%04d.%02d.%02d    时间：%02d:%02d:%02d    %s\n", time_point->tm_year + 1900, time_point->tm_mon + 1, time_point->tm_mday + 1, hour, time_point->tm_min, time_point->tm_sec, content);
+	//fclose(fp);
+
+	//saveData();
+	//saveData();
+	//saveData();
+
+	//readData();
+	//clearData();
+
+	char *cur_content; //  定义一个指针指向findLine()返回的字符串
+	cur_content = findLine(5);
+	printf("%s",cur_content);
+}
+
