@@ -67,6 +67,10 @@ void saveData() {
 	fclose(fp);
 }
 void readData() {
+	/*fread()和 fgets()区别：
+	  fread(): 以字节位计算长度, 按照指定的长度和次数读取数据, 遇到结尾或完成指定长度读取后停止 .
+	  fgets(): 整行读取, 遇到回车换行或结尾停止.在文本方式时使用.*/
+
 	FILE* fp = fopen("C:\\Users\\Admin\\Desktop\\多功能记事本.txt", "a+"); //这是代码指针
 	fp = fopen("C:\\Users\\Admin\\Desktop\\多功能记事本.txt", "r+");
 	rewind(fp); //将文件指针移回最前端，注意区分文件指针与代码指针
